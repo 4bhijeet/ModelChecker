@@ -1,0 +1,140 @@
+Aum Amma
+
+Packages:
+1. model_checker (auto-generated, has one class Activator.java, contains start)
+2. modelChecker.views.viewpart
+3. graphsearch
+4. util
+5. matrix
+
+Classes in packages
+1. model_checker
+- Activator.java (auto-generated, contains start, stop methods for the plugin)
+
+2. modelChecker.views.viewpart
+- ModelCheckerView.java
+--> Main view class, biggest class, 
+--> Plots the model checker GUI controls
+--> Model checking logic is also implemented
+--> Comparison logic is implemented
+
+- Edge.java
+--> ModelCheckerView uses it to maintain Edge-Zest representation of the Transition mapping
+--> This can be used to color the edges
+--> Fields: <source, destination>
+
+- ResultStat.java
+--> Useful class to return two integers from ModelCheckerView after comparison.
+--> The two integers (fields) are countMatchingTrans, countIllegalTransVtoV.
+--> VtoV implies from valid state to valid state.
+
+3. graphsearch
+- ReadUML.java
+--> Reads the .uml file (of papyrus) and it does the parsing
+--> It creates several mappings
+--> stateNameMap - statename-to-code mapping
+--> statePropMap - code-to-state in the UML file mapping
+--> symbolTypeMap - position-to-data type mapping (position=order of variable in a state)
+--> valueMap - position-to-values mapping (values= set of values taken by the variable in design model)
+--> varsTypeColl - datatype-to-variables mapping
+--> Uses SymbolMap
+
+- StateProp.java
+--> Wrapper for state in the UML file
+
+- DataType.java
+--> Enumerates the data types supported by the model checker.
+
+- SymbolMap.java
+--> variable name-to-index mapping
+--> used by ReadUML.java
+
+- Value.java
+--> Stores the values of the variable in a data-type independent form
+--> When it is needed, we will type cast the value.
+
+- TemporalProperties.java
+- Enumerates the temporal properties supported like AX, EX, AG,....
+
+4. util
+- PropertyUI.java
+--> Custom UI for holding the relational operators and variable's values in combo boxes
+--> Relops: ==, !=, >, <, .....
+--> Each widget contains <variable name, relop combo,  values combo>
+--> values combo can vary based on the data type. If integer, ComboText can be used. For String and boolean, it is Combo.
+--> Also supports range
+
+- ComboText.java
+--> Custom UI that has combo and text box
+--> Has a constant "OTHER", which when selected allows to enter custom values
+
+- PropertyWrapper.java
+--> Is used to wrap the whole PropertyUIs, so that when + button is clicked creates another set of PropertyUIs
+
+- Range.java
+--> Wrapper to hold the minimum and maximum values of a range in the ComboText when OTHER is selected
+
+5. matrix
+- DesigntimeMtx.java
+--> Holds the adjacency matrix of the design time model
+--> stateNametoCodeMap (Code = Index in the array)
+--> codeToStateNameMap
+
+-RuntimeMtx.java
+--> Holds the adjacency matrix of the runtime model
+--> It reads the runtime.txt file and constructs the adjacency matrix.
+--> Implement methods to get the neighbours of the state from the matrix, 
+--> Methods to do dfs, reverse dfs, to find the non--intermediate parents and children of a intermediate state 
+
+Starting class: modelChecker.views.viewpart.ModelCheckerView
+
+Description of fields:
+LINE_WIDTH => Refers to width of the transition edge after model checking
+DEF => default symbol for EX..., states dropdown boxes.
+propertyUIs_first => part where property can be selected
+propertyUIs_second => until part
+
+--> Main view class, biggest class, 
+--> Plots the model checker GUI controls
+> createPartControl()
+>>> browseButtonAction() 
+>>>>> loadUMLData()
+>>>>>>> ReadUML.read()
+>>>>>>> Populate the UIs
+>>>>> loadGraph() 
+>>>>>>> Populating the graphical view using ZEST api
+>>>>>>> Setting the preferred size of the graph
+>>>>>>> SpringLayoutAlgorithm to layout the nodes
+>>>>>>> If loadGraph() succeeds, we will enable the Refresh and Export button
+>>>>>>> Set the minimum size of the scroll pane
+>>>>>>> Check whether runime.txt exists, if so, delete
+>>> mcButton (model checking button action listener)
+>>>>> Resets the graph colors
+>>>>> Error checking if the fields are not loaded properly, validate the custom values
+>>>>> doModelChecking()
+>>>>>>> Switch... Case to call the appropriate temporal property checkers (checkAX, checkEX,.....)
+>>>>>>>>> satisfy() - uses compare*** methods
+>>>>>>>>> color the edges depending upon the result from satisfy() method
+>>>>>>>>> i. colorEdgeMC - coloring the model checking (increased line width)
+>>>>>>>>> ii. colorEdge - color during runtime comparison
+
+>>> exportButtonAction
+>>> plus.addSelectionListener
+>>> minus.addSelectionListener
+>>> PermittedStatesButton()
+
+>>> verifyRuntimeButton() (checkConsistency button)
+>>>>> Check if runtime.txt exists or else prompt the user to generate
+>>>>> Reset the graph color
+>>>>> CompareDTAndRT()
+>>>>>>> Design time matrix will be created
+>>>>>>> Runtime matrix loaded from runtime.txt
+>>>>>>> Collect the illegal states and common states
+>>>>>>> Color the common states as green
+>>>>>>> Put these illegal states in the design time model
+>>>>>>> compareTransitions()
+>>>>>>>>> compare the transitions and color the edges
+
+--> Model checking logic is also implemented
+--> Comparison logic is implemented
+

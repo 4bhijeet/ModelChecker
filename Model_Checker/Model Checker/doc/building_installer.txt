@@ -1,0 +1,29 @@
+1. Create a feature project via File->New->Other... -> Plug-in Development -> Feature Project. 
+	Project Name: Compare Design and Runtime
+	Feature ID: Compare_Design_and_Runtime
+	Feature Version: 1.0.2.micro
+	
+2. Click Next. Select the plugins to package.
+	i) Model Checker View
+	ii) State Diagram View
+	
+3. Click Finish
+
+4. Press the New Category button and create a category with a name "category.xml".
+
+5. In 'Managing the Categories' section in the 'Category Definition' page, click 'New Category'.
+	ID : edu.buffalo.cse.jive.ui.jiveViews
+	Name: JIVE Views
+	
+6. Then Press 'Add Feature' making sure that 'JIVE Views' category is selected. Select the feature project we have just created 'Compare_Design_and_Runtime(1.0.2.micro)'. Make sure that this entry appears under the JIVE views category.
+
+7. Select File->Export->Deployable features
+
+8. Select the name of the feature in the 'Available Features' section.
+
+9. In the Destination tab, select Directory radio button and give the location of the directory to which the the installer files should be saved.
+
+10. In Options tab, make sure that 'Categorize repository' is ticked, and give the location of the "category.xml" file.
+
+11. Click Finish
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="edu.buffalo.cse.jive.ui.jiveViews"
+            name="JIVE Views">
+      </category>
+      <view
+            category="edu.buffalo.cse.jive.ui.jiveCategory"
+            class="modelChecker.views.viewpart.ModelCheckerView"
+            id="modelChecker.views.view1"
+            name="Model Checker View"
+            restorable="true">
+      </view>
+   </extension>
+
+</plugin>

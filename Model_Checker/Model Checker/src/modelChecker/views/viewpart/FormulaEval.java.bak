@@ -1,0 +1,267 @@
+package modelChecker.views.viewpart;
+import java.util.*;
+
+public class FormulaEval {
+	static Form form1;
+	public static ArrayList<Integer> eval(String formula) {
+		/*
+		 * ctl -> temp
+		 * temp -> tempID '[' expr ']'
+		 * tempID -> AX | AF | AG | EX | EF | EG
+		 * expr -> temp | term ['->' expr] | '(' expr ')' | '~' expr
+		 * term -> fact [('\/' | '/\') term]
+		 * fact -> p | states | expr
+		 * New version*
+		 * form -> temp | expr***change here
+		 * temp -> tempID '[' expr ']' [('\/' | '/\') | '->') expr] 
+		 * tempID -> AX | AF | AG | EX | EF | EG
+		 * expr -> temp | term ['->' expr] | ~fact | (expr) | (expr) ('\/' | '/\') | '->') expr
+		 * term -> fact [('\/' | '/\') term
+		 * fact -> p | '~' p [('\/' | '/\') | '->') expr] | '~' expr 
+		 */
+		form1 = new Form(formula);
+		return form1.result;
+	}
+}
+
+class Form { //Form -> temp
+	Temp temp1;
+	ArrayList<Integer> result;
+	public Form(String formula) {
+		temp1 = new Temp(formula);
+		result = temp1.result;
+	}
+}
+
+class Temp { //temp -> tempID '[' expr ']'
+	//temp -> tempID '[' expr ']' [('\/' | '/\') | '->') expr]
+	Expr expr1,expr2;
+	TempID tempID1;
+	ArrayList<Integer> result;
+	public Temp(String formula) {
+		int start = formula.indexOf('[');
+		int count = 0;
+		int end;
+		for(end=start;end<formula.length();end++) {
+			if(formula.charAt(end)=='[') count++;
+			if(formula.charAt(end)==']') count--;
+			if(count==0) break;
+		}
+		if(end==formula.length()-1) {
+			expr1 = new Expr(formula.substring(start+1,end));
+			tempID1 = new TempID(formula.substring(0,start),expr1.result);
+			if(formula.startsWith("~")) result = Function.setNot(tempID1.result);
+			else result = tempID1.result;
+		} else {
+			expr1 = new Expr(formula.substring(start+1,end));
+			if(formula.startsWith("~")) {
+				tempID1 = new TempID(formula.substring(1,start),expr1.result);
+				tempID1.result = Function.setNot(tempID1.result);
+			}
+			else {
+				tempID1 = new TempID(formula.substring(0,start),expr1.result);
+			}
+			expr2 = new Expr(formula.substring(end+3));
+			switch(formula.substring(end+1,end+3)) {
+			case "\\/":
+				result = Function.setOr(expr1.result, expr2.result);
+				break;
+			case "/\\":
+				result = Function.setAnd(expr1.result, expr2.result);
+				break;
+			case "->":
+				result = Function.setImplies(expr1.result, expr2.result);
+				break;
+			}
+		}
+	}
+}
+
+class TempID { //tempID -> AX | AF | AG | EX | EF | EG
+	ArrayList<Integer> result;
+	public TempID(String formula,ArrayList<Integer> input) {
+		switch(formula){
+		case "AX":
+			result = Function.basicAX(input);
+			break;
+		case "AF":
+			result = Function.basicAF(input);
+			break;
+		case "AG":
+			result = Function.basicAG(input);
+			break;
+		case "EX":
+			result = Function.basicEX(input);
+			break;
+		case "EF":
+			result = Function.basicEF(input);
+			break;
+		case "EG":
+			result = Function.basicEG(input);
+			break;
+		}
+	}
+}
+
+class Expr { //expr -> temp | term ['->' expr] | ~fact | (fact)
+	//if formula starts with ~ or ( then dont check for -> Just sent it to term
+	//expr -> temp | ~fact | (expr) [('\/' | '/\') | '->') expr] | term ['->' expr]
+	ArrayList<Integer> result;
+	Temp temp1;
+	Term term1;
+	Expr expr1,expr2;
+	Fact fact1;
+	
+	public Expr(String formula) {
+		switch(isTemp(formula)) {
+		case 1:
+			temp1 = new Temp(formula);
+			result = temp1.result;
+			break;
+		case 2:
+			fact1 = new Fact(formula);
+			result = fact1.result;
+			break;
+		case 3:
+			int count = 0;
+			int start = formula.indexOf("(");
+			int end;
+			for(end=0;end<formula.length();end++) {
+				if(formula.charAt(end)=='(') count++;
+				if(formula.charAt(end)==')') count--;
+				if(count==0) break;
+			}
+			if(end==formula.length()-1) {
+				expr1 = new Expr(formula.substring(start+1,end));
+				if(formula.startsWith("~")) result = Function.setNot(expr1.result);
+				else result = expr1.result;
+			} else {
+				expr1 = new Expr(formula.substring(start+1,end));
+				if(formula.startsWith("~")) expr1.result = Function.setNot(expr1.result);
+				expr2 = new Expr(formula.substring(end+3));
+				switch(formula.substring(end+1,end+3)) {
+				case "\\/":
+					result = Function.setOr(expr1.result, expr2.result);
+					break;
+				case "/\\":
+					result = Function.setAnd(expr1.result, expr2.result);
+					break;
+				case "->":
+					result = Function.setImplies(expr1.result, expr2.result);
+					break;
+				}
+			}
+			break;
+		case 4:
+			int position = formula.indexOf("->");
+			if(position!=-1) {
+				term1 = new Term(formula.substring(0, position));
+				expr1 = new Expr(formula.substring(position+2,formula.length()));
+				result = Function.setImplies(term1.result, expr1.result);
+			}
+			else {
+				term1 = new Term(formula);
+				result = term1.result;
+			}
+			break;
+		}
+	}
+	
+	int isTemp(String formula) {
+		if(formula.startsWith("AX[") || formula.startsWith("AF[") || formula.startsWith("AG[") ||
+		   formula.startsWith("EX[") || formula.startsWith("EF[") || formula.startsWith("EG[") ||
+		   formula.startsWith("~AX[") || formula.startsWith("~AF[") || formula.startsWith("~AG[") ||
+		   formula.startsWith("~EX[") || formula.startsWith("~EF[") || formula.startsWith("~EG[")
+			) return 1;
+		else if(formula.startsWith("(") || formula.startsWith("~(")) return 3;
+		else if(formula.startsWith("~")) return 2;
+		else return 4;
+	}
+}
+
+class Term { //term -> fact [('\/' | '/\') term]
+	//term -> fact [('\/' | '/\') term
+	ArrayList<Integer> result;
+	Term term1;
+	Fact fact1;
+	public Term(String formula) {
+		int position1 = formula.indexOf("\\/");
+		int position2 = formula.indexOf("/\\");
+		if(position1==-1) position1=99999;
+		if(position2==-1) position2=99999;
+		if(position1<position2) {
+			fact1 = new Fact(formula.substring(0, position1));
+			term1 = new Term(formula.substring(position1+2,formula.length()));
+			result = Function.setOr(fact1.result, term1.result);
+		}
+		else if (position2<position1) {
+			fact1 = new Fact(formula.substring(0, position2));
+			term1 = new Term(formula.substring(position2+2,formula.length()));
+			result = Function.setAnd(fact1.result, term1.result);
+		}
+		else {
+			fact1 = new Fact(formula);
+			result = fact1.result;
+		}
+	}
+}
+
+class Fact { //fact -> p | '(' fact ')' | '~' p [('\/' | '/\') | '->') fact] | '~' fact | expr
+	//fact -> p | '~' p [('\/' | '/\') | '->') expr]
+	ArrayList<Integer> result;
+	Expr expr1;
+	Temp temp1;
+	public Fact(String formula) {
+		if(NestedModel.properties.contains(formula)) {
+			//result = NestedModel.propertiesTrueAt[NestedModel.properties.indexOf(formula)];
+			ArrayList<Integer> p = new ArrayList();
+			p.addAll(NestedModel.propertiesTrueAt[NestedModel.properties.indexOf(formula)]);
+			result = p;
+		}
+		else {
+			int positionOr = formula.indexOf("\\/");
+			int positionAnd = formula.indexOf("/\\");
+			int positionImplies = formula.indexOf("->");
+			if(positionOr==-1) positionOr=99999;
+			if(positionAnd==-1) positionAnd=99999;
+			if(positionImplies==-1) positionImplies=99999;
+			if(positionOr < positionAnd && positionOr < positionImplies) {
+				if(NestedModel.properties.contains(formula.substring(1, positionOr))) {
+					int property = NestedModel.properties.indexOf(formula.substring(1, positionOr));
+					ArrayList<Integer> p = new ArrayList();
+					p.addAll(NestedModel.propertiesTrueAt[property]);
+					p = Function.setNot(p);
+					expr1 = new Expr(formula.substring(positionOr+2));
+					result = Function.setOr(p, expr1.result);
+				}
+				else System.out.println("Error");
+			} else if(positionAnd < positionOr && positionAnd < positionImplies) {
+				if(NestedModel.properties.contains(formula.substring(1, positionAnd))) {
+					int property = NestedModel.properties.indexOf(formula.substring(1, positionOr));
+					ArrayList<Integer> p = new ArrayList();
+					p.addAll(NestedModel.propertiesTrueAt[property]);
+					p = Function.setNot(p);
+					expr1 = new Expr(formula.substring(positionAnd+2));
+					result = Function.setAnd(p, expr1.result);
+				}
+				else System.out.println("Error");
+			} else if(positionImplies < positionOr && positionImplies < positionAnd) {
+				if(NestedModel.properties.contains(formula.substring(1, positionImplies))) {
+					int property = NestedModel.properties.indexOf(formula.substring(1, positionImplies));
+					ArrayList<Integer> p = new ArrayList();
+					p.addAll(NestedModel.propertiesTrueAt[property]);
+					p = Function.setNot(p);
+					expr1 = new Expr(formula.substring(positionImplies+2));
+					result = Function.setImplies(p, expr1.result);
+				}
+				else System.out.println("Error");
+			} else if(NestedModel.properties.contains(formula.substring(1))) {
+				int property = NestedModel.properties.indexOf(formula.substring(1));
+				ArrayList<Integer> p = new ArrayList();
+				p.addAll(NestedModel.propertiesTrueAt[property]);
+				p = Function.setNot(p);
+				result = p;
+			} else  System.out.println("Error");
+		}
+	}
+}
