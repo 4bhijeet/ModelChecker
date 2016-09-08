@@ -23,6 +23,12 @@ public class NestedModel {
 	static ArrayList<String> properties_run;
 	static HashMap<Integer,String> nodeNames_run;
 	static int countOfNodes_run,countOfProperties_run;
+	
+	static ArrayList<Integer> universe_current,adjacencyList_current[],revAdjacencyList_current[],propertiesTrueAt_current[];
+	static ArrayList<String> properties_current;
+	static HashMap<Integer,String> nodeNames_current;
+	static int countOfNodes_current,countOfProperties_current;
+	
 	public static void Modeling(String file) {
 		String line,line_split[];
 		try {
@@ -469,5 +475,27 @@ public class NestedModel {
 	        }
 	    }
 	    return null;
+	}
+	
+	public static void make_design_current() {
+		universe_current=universe;
+		adjacencyList_current=adjacencyList;
+		revAdjacencyList_current=revAdjacencyList;
+		propertiesTrueAt_current=propertiesTrueAt;
+		properties_current=properties;
+		nodeNames_current=nodeNames;
+		countOfNodes_current=countOfNodes;
+		countOfProperties_current=countOfProperties;
+	}
+	
+	public static void make_run_current() {
+		universe_current=universe_run;
+		adjacencyList_current=adjacencyList_run;
+		revAdjacencyList_current=revAdjacencyList_run;
+		propertiesTrueAt_current=propertiesTrueAt_run;
+		properties_current=properties_run;
+		nodeNames_current=nodeNames_run;
+		countOfNodes_current=countOfNodes_run;
+		countOfProperties_current=countOfProperties_run;
 	}
 }

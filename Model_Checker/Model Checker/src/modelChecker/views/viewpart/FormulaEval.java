@@ -151,13 +151,13 @@ class Fact { //fact -> [ '~' ] ( p | temp | sexpr )
 		if(Lexer.nextToken == Token.NOT_OP) {
 			Lexer.lex();//Consume '~'
 			if(Lexer.nextToken == Token.ATOMIC_PROPOSITION) {
-				int position = NestedModel.properties.indexOf(Lexer.atomicProposition);
+				int position = NestedModel.properties_current.indexOf(Lexer.atomicProposition);
 				if(position == -1) {
 					System.out.println("Invalid Atomic Proposition: " + Lexer.atomicProposition);
 					System.exit(0);
 				}
 				result = new ArrayList();
-				result.addAll(NestedModel.propertiesTrueAt[position]);
+				result.addAll(NestedModel.propertiesTrueAt_current[position]);
 				result = Function.setNot(result);
 				Lexer.lex();
 			} else if(Lexer.nextToken == Token.KEY_AF || Lexer.nextToken == Token.KEY_EF ||
@@ -171,13 +171,13 @@ class Fact { //fact -> [ '~' ] ( p | temp | sexpr )
 			}
 		} else {
 			if(Lexer.nextToken == Token.ATOMIC_PROPOSITION) {
-				int position = NestedModel.properties.indexOf(Lexer.atomicProposition);
+				int position = NestedModel.properties_current.indexOf(Lexer.atomicProposition);
 				if(position == -1) {
 					System.out.println("Invalid Atomic Proposition: " + Lexer.atomicProposition);
 					//System.exit(0);
 				}
 				result = new ArrayList();
-				result.addAll(NestedModel.propertiesTrueAt[position]);
+				result.addAll(NestedModel.propertiesTrueAt_current[position]);
 				Lexer.lex();
 			} else if(Lexer.nextToken == Token.KEY_AF || Lexer.nextToken == Token.KEY_EF ||
 					Lexer.nextToken == Token.KEY_AG || Lexer.nextToken == Token.KEY_EG || 

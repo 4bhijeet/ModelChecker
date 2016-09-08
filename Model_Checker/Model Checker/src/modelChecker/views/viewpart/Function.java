@@ -46,7 +46,7 @@ public class Function {
 	
 	public static ArrayList<Integer> setNot(ArrayList<Integer> not1) {
 		ArrayList<Integer> result= new ArrayList();
-		result.addAll(NestedModel.universe);
+		result.addAll(NestedModel.universe_current);
 		if(not1==null || not1.isEmpty()){
 			return result;
 		}
@@ -70,8 +70,8 @@ public class Function {
 		if(input==null || input.isEmpty()) return input;
 		ArrayList<Integer> result = new ArrayList();
 		for(int i: input) {
-			if(NestedModel.revAdjacencyList[i]==null || NestedModel.revAdjacencyList[i].isEmpty()) continue;
-			result.addAll(NestedModel.revAdjacencyList[i]);
+			if(NestedModel.revAdjacencyList_current[i]==null || NestedModel.revAdjacencyList_current[i].isEmpty()) continue;
+			result.addAll(NestedModel.revAdjacencyList_current[i]);
 		}
 		if(result==null || result.isEmpty()) return result;
 		Set<Integer> hs = new HashSet<>();
@@ -85,9 +85,9 @@ public class Function {
 	public static ArrayList<Integer> basicAX(ArrayList<Integer> input) {
 		if(input==null || input.isEmpty()) return input;
 		ArrayList<Integer> result = new ArrayList();
-		for(int i=1;i<=NestedModel.countOfNodes;i++) {
-			if(NestedModel.adjacencyList[i]==null || NestedModel.adjacencyList[i].isEmpty()) continue;
-			if(input.containsAll(NestedModel.adjacencyList[i])) result.add(i);
+		for(int i=1;i<=NestedModel.countOfNodes_current;i++) {
+			if(NestedModel.adjacencyList_current[i]==null || NestedModel.adjacencyList_current[i].isEmpty()) continue;
+			if(input.containsAll(NestedModel.adjacencyList_current[i])) result.add(i);
 		}
 		if(result==null || result.isEmpty()) return result;
 		Collections.sort(result);
@@ -102,8 +102,8 @@ public class Function {
 			result.addAll(preresult);
             preresult.addAll(result);
 			for(int i: preresult) {
-				if(NestedModel.revAdjacencyList[i]==null || NestedModel.revAdjacencyList[i].isEmpty()) continue;
-				result.addAll(NestedModel.revAdjacencyList[i]);
+				if(NestedModel.revAdjacencyList_current[i]==null || NestedModel.revAdjacencyList_current[i].isEmpty()) continue;
+				result.addAll(NestedModel.revAdjacencyList_current[i]);
 			}
 			result.removeAll(preresult);
 			if(result.isEmpty()) break;

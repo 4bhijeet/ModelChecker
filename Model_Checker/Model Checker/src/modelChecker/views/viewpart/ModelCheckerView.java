@@ -991,13 +991,14 @@ public class ModelCheckerView extends ViewPart {
 		runtimeFileText.setLayoutData(gd);		
 		
 		runtimeFileText.setText(props.getProperty("runtimeLoadStatusText_NOT_LOADED"));
-
-		Button consistencyCheckButton = new Button(loadRuntimeCompositeSML, SWT.PUSH);
-		consistencyCheckButton.setText("Check Consistency");
 		
 		Button showVarsetButton = new Button(loadRuntimeCompositeSML, SWT.PUSH);
 		showVarsetButton.setText("Atomic Propositions");
 		showVarsetButton.setEnabled(false);
+		
+		Button consistencyCheckButton = new Button(loadRuntimeCompositeSML, SWT.PUSH);
+		consistencyCheckButton.setText("Check Consistency");
+				
 		
 		Composite pathInspectorComposite = new Composite(mainComposite, SWT.BORDER);
 		GridLayout pathInspectorLayout = new GridLayout(1, false);
@@ -1187,6 +1188,7 @@ public class ModelCheckerView extends ViewPart {
 						NestedModel.umlModeling(umlFileText.getText());
 					else
 						NestedModel.Modeling(umlFileText.getText());
+					NestedModel.make_design_current();
 				}
 				else
 				{
@@ -1194,6 +1196,7 @@ public class ModelCheckerView extends ViewPart {
 					graph = smlGraphRuntime;
 					nodes = nodesSMLRuntime;
 					NestedModel.RuntimeToModelConvertor(runFileName);
+					NestedModel.make_run_current();
 				}
 				for(int i=1; i<=nodes.size(); i++)
 				{
@@ -1203,6 +1206,7 @@ public class ModelCheckerView extends ViewPart {
 			    	node.setBorderColor(display.getSystemColor(SWT.COLOR_BLACK));
 				}
 				Lexer.initialise(formulaText);
+				
 				nodeList = FormulaEval.eval();
 				Dimension nodeDimension = null;
 				if(!nodeList.isEmpty() && nodeList != null)
